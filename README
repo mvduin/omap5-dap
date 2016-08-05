@@ -1,0 +1,10 @@
+DAP-only jtag setup for omap5
+
+Check the dss script and adjust to taste.
+
+The target description (omap5-daponly.ccxml) assumes an XDS100v2 debugger
+and will need to be adjusted when using a different one.
+
+The included i2c.js *should* work but hasn't been properly tested since
+it needs to enable irqs on the peripheral which is impossible without
+getting into a fight with Linux.

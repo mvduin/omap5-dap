@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configurations id="">
+  <configuration id="">
+
+    <instance id="XDS100v2" href="connections/TIXDS100v2_Connection.xml" xmlpath="connections" xml="TIXDS100v2_Connection.xml" />
+    <connection id="XDS100v2" desc="XDS100v2">
+      <instance href="drivers/tixds100v2icepick_d.xml" id="drivers" xml="tixds100v2icepick_d.xml" xmlpath="drivers" />
+      <instance href="drivers/tixds100v2cs_dap.xml" id="drivers" xml="tixds100v2cs_dap.xml" xmlpath="drivers" />
+      <instance href="drivers/tixds100v2cs_child.xml" id="drivers" xml="tixds100v2cs_child.xml" xmlpath="drivers" />
+      <instance href="drivers/tixds100v2dap_pc.xml" id="drivers" xml="tixds100v2dap_pc.xml" xmlpath="drivers" />
+      <instance href="drivers/tixds100v2cortexA15.xml" id="drivers" xml="tixds100v2cortexA15.xml" xmlpath="drivers" />
+
+      <!-- you can use this if you have multiple JTAG adapters connected -->
+<!--
+      <property id="Emulator Selection" Value="1" Type="choicelist">
+          <choice value="0" Name="Select by serial number">
+              <property id="- Enter the serial number" Value="TIUNJGHU" Type="stringfield" />
+          </choice>
+      </property>
+-->
+      <property id="The JTAG TCLK Frequency (MHz)" Value="1" Type="choicelist">
+          <choice value="SPECIFIC" Name="Fixed with user specified faster value">
+              <property id="-- Enter a value from 1.0MHz to 30.0MHz" Value="10" Type="stringfield" />
+          </choice>
+      </property>
+
+      <!-- adaptive clocking is afaik only useful if you include ARM9 cores (e.g. IVA) -->
+<!--
+      <property id="The JTAG TCLK Frequency (MHz)" Value="3" Type="choicelist">
+          <choice value="ADAPTIVE" Name="Adaptive with user specified limit">
+              <property id="- Enter a value from 488Hz to 30.0MHz" Value="10.0MHz" Type="stringfield"/>
+          </choice>
+      </property>
+-->
+
+      <property Type="choicelist" Value="0" id="The Power-On-Reset Boot-Mode"/>
+      <!-- 0 = normal, 2 = wait-in-reset -->
+
+      <property Type="choicelist" Value="0" id="The JTAG nTRST Boot-Mode"/>
+      <!-- should be 0 -->
+
+      <platform id="uEVM">
+
+        <device id="OMAP5432" partnum="OMAP5432" HW_revision="2.0" description="OMAP5432 ES2.0">
+
+          <instance id="ICEPick" href="routers/icepick_d.xml" xmlpath="routers" xml="icepick_d.xml" />
+          <router id="ICEPick" desc="ICEPick" isa="ICEPICK_D" description="ICEPick-D Router">
+
+            <subpath id="DebugSS">
+              <property id="Port Number" Value="0xf" Type="numericfield" />
+
+              <instance id="DAP" href="routers/cs_dap.xml" xmlpath="routers" xml="cs_dap.xml" />
+              <router desc="DAP" id="DAP" isa="CS_DAP" description="DebugSS DAP">
+                <property id="DAP TAP ID" Value="0x4b6b902f" Type="numericfield" />
+                <property id="GEL File" Value="gel/dap.gel" Type="filepathfield" />
+              </router>
+            </subpath><!--/DebugSS-->
+
+	        </router><!--/ICEPick-->
+        </device><!--/OMAP5432-->
+
+      </platform>
+    </connection>
+
+  </configuration>
+</configurations>

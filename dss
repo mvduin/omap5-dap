@@ -1,0 +1,53 @@
+#!/bin/bash
+
+set -e
+
+pathcat() {
+	perl -e 'print join ":", grep !$x{$_}++, map split(/:/, $_), @ARGV' "$@"
+}
+pathadd() {
+	local var="$1"
+	shift
+	export $var=`pathcat "$@" "${!var}"`
+}
+
+
+ccs_root="$HOME/ti/ccsv6"
+if [[ ! -d "$ccs_root" ]]; then
+	ccs_root="$HOME/ti/ccsv5"
+	if [[ ! -d "$ccs_root" ]]; then
+		echo "CCS not found" >&2
+		false
+	fi
+fi
+ccs_base="$ccs_root/ccs_base"
+
+export JAVA_HOME="$ccs_root/eclipse/jre"
+
+pathadd LD_LIBRARY_PATH	"$ccs_base/emulation/analysis/bin"
+pathadd PATH		"$JAVA_HOME/bin"
+pathadd CLASSPATH	"$ccs_base/DebugServer/packages/ti/dss/java/dss.jar"
+pathadd CLASSPATH	"$ccs_base/dvt/scripting/dvt_scripting.jar"
+pathadd CLASSPATH	"/usr/share/java/js.jar"
+#pathadd CLASSPATH	"/usr/share/java/jline.jar"
+
+## Rhino's support for JLine2 appears broken, and JLine1 sucks very hard...
+## tough choice between having some tab completion vs having a decent readline
+##
+## to use JLine instead of rlwrap, uncomment its addition to the class path
+## above, and uncomment the line below to skip the rlwrap stuff
+##
+#exec java org.mozilla.javascript.tools.shell.Main "$@"
+
+rlwrap_args=(
+	-Cdss
+	-pyellow
+	-O'> '
+)
+if [[ $# == 0 && -f "debug.js" ]]; then
+	rlwrap_args+=( -P'load("debug.js")' )
+fi
+set - java org.mozilla.javascript.tools.shell.Main "$@"
+
+export RLWRAP_HOME="$HOME/.dss"
+exec rlwrap "${rlwrap_args[@]}" "$@"
